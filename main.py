@@ -73,7 +73,7 @@ async def ws_align_jd(websocket: WebSocket, store: ExperienceStore = Depends(get
 
     config = get_config()
     api_key = os.getenv("OPENROUTER_API_KEY")
-    model = os.getenv("RESUME_MODEL", "anthropic/claude-3-haiku")
+    model = config.llm_model
 
     if not api_key:
         await websocket.send_json({"type": "error", "payload": {"message": "OPENROUTER_API_KEY is not set."}})

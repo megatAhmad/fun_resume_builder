@@ -9,7 +9,7 @@ const App = () => {
   const [activeTab, setActiveTab] = useState('list');
   const [experiences, setExperiences] = useState([]);
   const [projects, setProjects] = useState([]);
-  const [settings, setSettings] = useState({ llm_retry_max: 3, llm_wait_time: 5 });
+  const [settings, setSettings] = useState({ llm_retry_max: 3, llm_wait_time: 5, llm_model: "anthropic/claude-3-haiku" });
   const [jdText, setJdText] = useState('');
   const [startAlign, setStartAlign] = useState(false);
 
@@ -159,6 +159,16 @@ const App = () => {
                   type="number"
                   value={settings.llm_wait_time}
                   onChange={e => setSettings({...settings, llm_wait_time: parseInt(e.target.value)})}
+                  className="w-full border p-2 rounded"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">LLM Model</label>
+                <input
+                  type="text"
+                  value={settings.llm_model}
+                  onChange={e => setSettings({...settings, llm_model: e.target.value})}
                   className="w-full border p-2 rounded"
                 />
               </div>

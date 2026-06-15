@@ -12,17 +12,21 @@ from pydantic import BaseModel, Field
 class AppConfig(BaseModel):
     llm_retry_max: int = Field(default=3)
     llm_wait_time: int = Field(default=5)  # in seconds
+    llm_model: str = Field(default="anthropic/claude-3-haiku")
 
 
 def load_config(path: str = "config.json") -> AppConfig:
+    default_model = os.getenv("RESUME_MODEL", "anthropic/claude-3-haiku")
     if os.path.exists(path):
         with open(path, "r", encoding="utf-8") as f:
             try:
                 data = json.load(f)
+                if "llm_model" not in data:
+                    data["llm_model"] = default_model
                 return AppConfig(**data)
             except Exception:
                 pass
-    return AppConfig()
+    return AppConfig(llm_model=default_model)
 
 
 def save_config(config: AppConfig, path: str = "config.json") -> None:
