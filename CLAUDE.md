@@ -9,11 +9,12 @@ Follow every rule here exactly. When in doubt, read the relevant source file bef
 
 A local-first, agentic system for managing career data and generating targeted resumes.
 It is a **personal tool — not a service**. There is one user, one SQLite database, no auth layer.
+This project uses a **FastAPI Backend** and a **React (Vite) Frontend**.
 
 The system has three active subsystems:
 - `store.py` — persistent SQLite store with local embeddings
-- `agents/clarifier.py` — interactive CLI wizard for ingesting new experience
-- `agents/gap_bridge.py` — JD alignment and transferable-experience detection
+- `agents/clarifier.py` — interactive agent for ingesting new experience (WebSocket)
+- `agents/gap_bridge.py` — JD alignment and transferable-experience detection (WebSocket)
 
 The render engine (python-docx / Jinja2 output) and AutoGen orchestration layer
 are **planned but not yet built**. Do not add stubs for them without being asked.
@@ -25,22 +26,13 @@ are **planned but not yet built**. Do not add stubs for them without being asked
 ```bash
 # Install dependencies
 pip install -r requirements.txt
+cd frontend && npm install
 
-# Add a work experience (interactive)
-python main.py add-experience
+# Start Backend
+uvicorn main:app --reload
 
-# Add a personal project (interactive)
-python main.py add-project
-
-# List everything in the store
-python main.py list
-
-# Run JD alignment + gap bridge
-python main.py align-jd --jd-file path/to/job.txt
-python main.py align-jd --jd-text "paste jd text here"
-
-# View audit log
-python main.py history
+# Start Frontend
+cd frontend && npm run dev
 ```
 
 Required environment variables:
@@ -60,13 +52,14 @@ resume_system/
 ├── SPEC.md                 ← full technical specification
 ├── README.md               ← end-user setup guide
 ├── requirements.txt
-├── main.py                 ← CLI entry point, arg parsing, command dispatch
+├── main.py                 ← FastAPI entry point
 ├── models.py               ← all Pydantic schemas (source of truth for data shape)
 ├── store.py                ← ExperienceStore class, SQLite + embedding CRUD
 ├── embeddings.py           ← embed(), cosine_similarity(), threshold constants
-└── agents/
-    ├── clarifier.py        ← ingestion wizard, metric probing, inline ask()
-    └── gap_bridge.py       ← JD requirement extraction, gap detection, LLM calls
+├── agents/
+│   ├── clarifier.py        ← ingestion wizard, metric probing
+│   └── gap_bridge.py       ← JD requirement extraction, gap detection, LLM calls
+└── frontend/               ← React + Vite frontend
 ```
 
 No other files exist yet. Do not create files outside this structure without being asked.
@@ -125,7 +118,6 @@ in `store.py` before exposing save methods for it.
 - Pydantic v2 only. Use `.model_dump_json()` and `.model_validate_json()`, never `.json()` or `.parse_raw()`.
 - Type hints on all function signatures. No bare `dict` or `list` — always parameterized.
 - `Optional[X]` not `X | None` for consistency with the existing codebase.
-- No `print()` outside `main.py`. Use `rich.console.Console` for all terminal output.
 - Line length: 100 characters.
 
 ### Naming
