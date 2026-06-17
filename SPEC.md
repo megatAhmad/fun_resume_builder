@@ -2,7 +2,7 @@
 ## Technical Specification v0.2
 
 **Status:** In development — Experience Store module complete. Render engine and orchestration layer planned.
-**Scope:** Personal use only. Single user, local-first, no network services except OpenRouter for LLM inference.
+**Scope:** Personal use only. Single user, local-first backend (FastAPI) and frontend (React). No network services except OpenRouter for LLM inference.
 **Last updated:** 2025
 
 ---
@@ -50,8 +50,13 @@ The Resume Lifecycle Repository is a local agentic system that:
 
 ```
 ┌──────────────────────────────────────────────────────────┐
-│                        CLI (main.py)                      │
+│                    React Frontend                         │
 │         add-experience │ add-project │ list │ align-jd    │
+└────────────┬───────────────────────────────┬─────────────┘
+             │ WebSockets / REST             │
+             ▼                               ▼
+┌──────────────────────────────────────────────────────────┐
+│                    FastAPI Backend (main.py)              │
 └────────────┬───────────────────────────────┬─────────────┘
              │                               │
              ▼                               ▼
@@ -564,17 +569,9 @@ No LLM call ever directly mutates the database. The pipeline is always:
 
 ---
 
-## 9. CLI Reference
+## 9. API Reference
 
-Entry point: `python main.py <command>`
-
-| Command | Description | Key flags |
-|---|---|---|
-| `add-experience` | Interactive wizard to ingest a work experience | none |
-| `add-project` | Interactive wizard to ingest a project | none |
-| `list` | Display all active experiences and projects | none |
-| `align-jd` | Run JD alignment + gap bridge | `--jd-file PATH`, `--jd-text STR` |
-| `history` | Print last 50 audit log entries | none |
+Entry point: `uvicorn main:app --reload`
 
 Environment variables:
 
@@ -583,6 +580,10 @@ Environment variables:
 | `OPENROUTER_API_KEY` | — | Yes, for `align-jd` |
 | `RESUME_DB_PATH` | `resume.db` | No |
 | `RESUME_MODEL` | `anthropic/claude-3-haiku` | No |
+
+Configuration is stored in `config.json` containing settings like:
+- LLM Retry Max
+- LLM Wait Time (seconds)
 
 ---
 
